@@ -7,5 +7,7 @@
 ## 详情
 - https://github.com/knownsec/404-Team-ShowCase/
 - https://www.vesiluoma.com/abusing-mysql-clients/
-
+- https://xz.aliyun.com/t/3973
+- http://russiansecurity.expert/2016/04/20/mysql-connect-file-read/
+- https://github.com/Gifts/Rogue-MySql-Server
 
